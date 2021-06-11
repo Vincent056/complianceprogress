@@ -1,0 +1,63 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: complianceprogress
+  labels:
+    app: complianceprogress
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: complianceprogress
+  template:
+    metadata:
+      labels:
+        app: complianceprogress
+    spec:
+      volumes:
+      - name: benchmark-data
+        configMap:
+          name: benchmark-data
+      containers:
+      - name: complianceprogress
+        image: quay.io/jaosorior/complianceprogress:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+          - name: benchmark-data
+            mountPath: /app/data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: complianceprogress
+  name: complianceprogress
+spec:
+  ports:
+  - name: 80-tcp
+    port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: complianceprogress
+  type: ClusterIP
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app: complianceprogress
+  name: complianceprogress
+spec:
+  port:
+    targetPort: 80-tcp
+  to:
+    kind: Service
+    name: complianceprogress
+    weight: 100
+  wildcardPolicy: None
+  tls:
+    termination: Edge
