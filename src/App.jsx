@@ -25,19 +25,39 @@ function PlannedStats(props) {
 function RenderControls(props) {
   return props.controls.sort().map(function(item, i) {
     const baseCtrl = item.replace(/\(.*\)/, '')
-    return <a href={`https://csrc.nist.gov/Projects/risk-management/sp800-53-controls/release-search#!/control?version=5.1&number=${baseCtrl}`} target="_blank">
+    return <a href={`https://csrc.nist.gov/Projects/risk-management/sp800-53-controls/release-search#!/control?version=5.1&number=${baseCtrl}`} target="_blank" rel="noreferrer">
         <Button className="ControlButton" >{item}</Button>
       </a>
   });
 }
 
-function App() {
-  // This is a trusted file and will be deployed alongside
-  // the app
-  var data = require('./moderate.json');
-  const capitalized_product = data["product_name"].toUpperCase();
+const getData = () => {
+  try {
+    return require("./moderate.json")
+  } catch {
+    return {}
+  }
+}
+
+function calculateAddressed(data) {
+  if (!data["addressed_controls"]) {
+    return 0
+  }
   const total = data["total_controls"];
-  const now = Number((data["addressed_controls"]["all"].length / total) * 100).toFixed();
+  return Number((data["addressed_controls"]["all"].length / total) * 100).toFixed()
+}
+
+function App() {
+  var data = getData()
+
+  if (!data || Object.keys(data).length === 0) {
+    return (<div className="App">
+      <p>There's no data to show.</p>
+    </div>);
+  }
+
+  const total = data["total_controls"];
+  const now = calculateAddressed(data);
   const addressed = data["addressed_controls"]["all"];
   const imet = data["addressed_controls"]["inherently"];
   const scap = data["addressed_controls"]["xccdf"];
@@ -53,9 +73,8 @@ function App() {
   return (
     <div className="App">
       <div className="AppInner">
-        <h1>{capitalized_product}: Progress for {data["benchmark"]["name"]} {data["benchmark"]["baseline"]}</h1>
-        <br/>
-        <br/>
+        <h1>{data["product_name"].toUpperCase()}:
+        Progress for {data["benchmark"]["name"]} {data["benchmark"]["baseline"]}</h1>
         <p>
           This is the progress that the ISC team is doing on evaluating and working
           on the {data["benchmark"]["name"]} {data["benchmark"]["baseline"]} benchmark.
