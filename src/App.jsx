@@ -1,3 +1,4 @@
+import React,{useState,useEffect} from 'react';
 import './App.css';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -31,14 +32,6 @@ function RenderControls(props) {
   });
 }
 
-const getData = () => {
-  try {
-    return require("/data/moderate.json")
-  } catch {
-    return {}
-  }
-}
-
 function calculateAddressed(data) {
   if (!data["addressed_controls"]) {
     return 0
@@ -48,7 +41,29 @@ function calculateAddressed(data) {
 }
 
 function App() {
-  var data = getData()
+  const [data, setData] = useState([]);
+  const getData = () => {
+    fetch('data/moderate.json', {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    }
+    )
+      .then(function (response) {
+        console.log(response)
+        return response.json();
+      })
+      .then(function (myJson) {
+        console.log(myJson);
+        setData(myJson)
+      });
+  }
+
+
+  useEffect(()=>{
+    getData()
+  },[])
 
   if (!data || Object.keys(data).length === 0) {
     return (<div className="App">
