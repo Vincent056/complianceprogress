@@ -33,7 +33,7 @@ function RenderControls(props) {
 
 const getData = () => {
   try {
-    return require("./data/moderate.json")
+    return require("/data/moderate.json")
   } catch {
     return {}
   }
