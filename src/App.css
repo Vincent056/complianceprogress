@@ -20,3 +20,7 @@
 .Stats {
   text-align: left;
 }
+
+.App .btn {
+  margin: 10px;
+}

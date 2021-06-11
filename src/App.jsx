@@ -2,6 +2,7 @@ import './App.css';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ProgressBar from 'react-bootstrap/ProgressBar';
+import Button from 'react-bootstrap/Button';
 
 function PlannedStats(props) {
   const total = props.total
@@ -21,6 +22,15 @@ function PlannedStats(props) {
   }
 }
 
+function RenderControls(props) {
+  return props.controls.sort().map(function(item, i) {
+    const baseCtrl = item.replace(/\(.*\)/, '')
+    return <a href={`https://csrc.nist.gov/Projects/risk-management/sp800-53-controls/release-search#!/control?version=5.1&number=${baseCtrl}`} target="_blank">
+        <Button className="ControlButton" >{item}</Button>
+      </a>
+  });
+}
+
 function App() {
   // This is a trusted file and will be deployed alongside
   // the app
@@ -28,6 +38,7 @@ function App() {
   const capitalized_product = data["product_name"].toUpperCase();
   const total = data["total_controls"];
   const now = Number((data["addressed_controls"]["all"].length / total) * 100).toFixed();
+  const addressed = data["addressed_controls"]["all"];
   const imet = data["addressed_controls"]["inherently"];
   const scap = data["addressed_controls"]["xccdf"];
   const na_ctrl = data["addressed_controls"]["not applicable"];
@@ -42,28 +53,38 @@ function App() {
   return (
     <div className="App">
       <div className="AppInner">
-      <h1>{capitalized_product}: Progress for {data["benchmark"]["name"]} {data["benchmark"]["baseline"]}</h1>
+        <h1>{capitalized_product}: Progress for {data["benchmark"]["name"]} {data["benchmark"]["baseline"]}</h1>
+        <hr />
 
         <div className="Stats">
-          <hr />
           <p>Total progress made:</p>
           <ProgressBar animated variant="sucess" now={now} label={`${now}%`} />
-          <br/>
+          <br />
+          <RenderControls controls={addressed} />
+          <hr />
 
           <p>Inherently met controls:</p>
           <ProgressBar variant="info" now={imet.length} label={`${imet.length} controls`} max={total} />
-          <br/>
+          <br />
+          <RenderControls controls={imet} />
+          <hr />
 
           <p>Addressed by OpenSCAP rules:</p>
           <ProgressBar variant="info" now={scap.length} label={`${scap.length} controls`} max={total} />
-          <br/>
+          <br />
+          <RenderControls controls={scap} />
+          <hr />
 
           <p>Addressed controls not applicable to the benchmark: <b>{na_ctrl.length} controls</b></p>
-          <br/>
+          <br />
+          <RenderControls controls={na_ctrl} />
+          <hr />
 
           <p>Unaddressed controls:</p>
           <ProgressBar variant="warning" now={unaddressed.length} label={`${unaddressed.length} controls`} max={total} />
-          <br/>
+          <br />
+          <RenderControls controls={unaddressed} />
+          <hr />
 
           <PlannedStats renderWarning={!hasPlanned} planned={planned} unplanned={unplanned} total={total} />
         </div>
