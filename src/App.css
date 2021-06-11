@@ -17,6 +17,10 @@
   width: 60%;
 }
 
+.AppInner h1 {
+  margin-bottom: 30px;
+}
+
 .Stats {
   text-align: left;
 }

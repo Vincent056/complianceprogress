@@ -54,6 +54,16 @@ function App() {
     <div className="App">
       <div className="AppInner">
         <h1>{capitalized_product}: Progress for {data["benchmark"]["name"]} {data["benchmark"]["baseline"]}</h1>
+        <br/>
+        <br/>
+        <p>
+          This is the progress that the ISC team is doing on evaluating and working
+          on the {data["benchmark"]["name"]} {data["benchmark"]["baseline"]} benchmark.
+        </p>
+
+        <p>
+          If you have any more questions regarding the progress, please contact the team.
+        </p>
         <hr />
 
         <div className="Stats">
