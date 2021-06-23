@@ -15,10 +15,14 @@ function PlannedStats(props) {
     return (<div><p>Planned controls:</p>
       <ProgressBar variant="success" now={planned.length} label={`${planned.length} controls`} max={total} />
       <br />
+      <RenderControls controls={planned} />
+      <hr />
 
       <p>Unplanned controls:</p>
       <ProgressBar variant="danger" now={unplanned.length} label={`${unplanned.length} controls`} max={total} />
       <br />
+      <RenderControls controls={unplanned} />
+      <hr />
     </div>);
   }
 }
