@@ -1,3 +1,20 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: complianceprogress
+spec:
+  lookupPolicy:
+    local: true
+  tags:
+  - annotations: null
+    from:
+      kind: DockerImage
+      name: quay.io/jaosorior/complianceprogress:latest
+    importPolicy:
+      scheduled: true
+    name: latest
+    referencePolicy:
+      type: Source
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -5,6 +22,8 @@ metadata:
   name: complianceprogress
   labels:
     app: complianceprogress
+  annotations:
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"complianceprogress:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"complianceprogress\")].image"}]'
 spec:
   replicas: 3
   selector:
@@ -21,7 +40,7 @@ spec:
           name: benchmark-data
       containers:
       - name: complianceprogress
-        image: quay.io/jaosorior/complianceprogress:latest
+        image: complianceprogress:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
