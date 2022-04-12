@@ -41,13 +41,13 @@ function calculateAddressed(data) {
     return 0
   }
   const total = data["total_controls"];
-  return Number((data["addressed_controls"]["all"].length / total) * 100).toFixed()
+  return Number((data["addressed_controls"]["assessed"].length / total) * 100).toFixed()
 }
 
 function App() {
   const [data, setData] = useState([]);
   const getData = () => {
-    fetch('data/moderate.json', {
+    fetch('data/high.json', {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
@@ -74,20 +74,17 @@ function App() {
       <p>There's no data to show.</p>
     </div>);
   }
-
+  const blocked = ["AC-10","SA-11","SA-11(2)","SA-11(8)","SC-21","SI-7(5)"];
   const total = data["total_controls"];
   const now = calculateAddressed(data);
-  const addressed = data["addressed_controls"]["all"];
+  const addressed = data["addressed_controls"]["assessed"];
   const imet = data["addressed_controls"]["inherently"];
-  const scap = data["addressed_controls"]["xccdf"];
-  const na_ctrl = data["addressed_controls"]["not applicable"];
-  const unaddressed = data["unaddressed"];
-  let planned = [];
-  const hasPlanned = Object.keys(data["planned"]).length !== 0
-  if (hasPlanned) {
-    planned = data["planned"];
-  }
-  const unplanned = data["unplanned"];
+  const automated = data["addressed_controls"]["automated"];
+  const partial = data["addressed_controls"]["partial"];
+  const na_ctrl = data["addressed_controls"]["notapplicable"];
+  const unaddressed = data["addressed_controls"]["pending"].filter(n => !blocked.includes(n));
+  console.log(unaddressed)
+
 
   return (
     <div className="App">
@@ -105,7 +102,7 @@ function App() {
         <hr />
 
         <div className="Stats">
-          <p>Total progress made:</p>
+          <p>Total progress made, all assessed controls:</p>
           <ProgressBar animated variant="sucess" now={now} label={`${now}%`} />
           <br />
           <RenderControls controls={addressed} />
@@ -117,15 +114,16 @@ function App() {
           <RenderControls controls={imet} />
           <hr />
 
-          <p>Addressed by OpenSCAP rules:</p>
-          <ProgressBar variant="info" now={scap.length} label={`${scap.length} controls`} max={total} />
+          <p>Addressed by automated check:</p>
+          <ProgressBar variant="info" now={automated.length} label={`${automated.length} controls`} max={total} />
           <br />
-          <RenderControls controls={scap} />
+          <RenderControls controls={automated} />
           <hr />
 
-          <p>Addressed controls not applicable to the benchmark: <b>{na_ctrl.length} controls</b></p>
+          <p>Partially addressed controls:</p>
+          <ProgressBar variant="info" now={partial.length} label={`${partial.length} controls`} max={total} />
           <br />
-          <RenderControls controls={na_ctrl} />
+          <RenderControls controls={partial} />
           <hr />
 
           <p>Unaddressed controls:</p>
@@ -134,7 +132,19 @@ function App() {
           <RenderControls controls={unaddressed} />
           <hr />
 
-          <PlannedStats renderWarning={!hasPlanned} planned={planned} unplanned={unplanned} total={total} />
+          <p>Blocked controls:</p>
+          <ProgressBar variant="danger" now={blocked.length} label={`${blocked.length} controls`} max={total} />
+          <br />
+          <RenderControls controls={blocked} />
+          <hr />
+          
+          <p>Addressed controls not applicable to the benchmark: <b>{na_ctrl.length} controls</b></p>
+          <br />
+          <RenderControls controls={na_ctrl} />
+          <hr />
+
+
+
         </div>
       </div>
     </div>
